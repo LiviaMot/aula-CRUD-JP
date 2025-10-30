@@ -1,24 +1,59 @@
-import ModelUser from '../model/users.js'
+import User from '../model/users.js'
 
 class ServiceUser {
   FindAll() {
-    return ModelUser.FindAll()
+    return User.FindAll()
   }
-  FindOne(index) {
-    // VERIFICAR SE O INDEX É VÁLIDO
-    return ModelUser.FindOne(index)
+  async FindOne(id) {
+    if (!id) {
+      throw new Error("Favor informar o ID")
+    }
+    // preciso procurar um usuario no banco e retornar o user
+    const user = await User.findByPk(id)
+
+    if (!user) {
+      throw new Error(`Usuário ${id} não encontrado`)
+    }
+
+    return user
   }
-  Create(nome) {
-    // VERIFICAR SE O NOME É VÁLIDO
-    return ModelUser.Create(nome)
+  async Create(nome, email, senha, ativo) {
+    if (!nome || !email || !senha) {
+      throw new Error("Favor preencher todos os campos!")
+    }
+    
+    await User.create({
+      nome, email, senha, ativo
+    })
   }
-  Update(index, nome) {
-    // VERIFICAR SE O INDEX E O NOME SÃO VÁLIDO
-    return ModelUser.Update(index, nome)
+  async Update(id, nome, email, senha, ativo) {
+    if (!id || !nome || !email || !senha) {
+      throw new Error("Favor preencher todos os campos!")
+    }
+
+    const user = await User.findByPk(id)
+    if (!user) {
+      throw new Error(`Usuário ${id} não encontrado`)
+    }
+    
+    user.nome = nome
+    user.email = email
+    user.senha = senha
+    user.ativo = ativo
+
+    await user.save()
   }
-  Delete(index) {
-    // VERIFICAR SE O INDEX É VÁLIDO
-    return ModelUser.Delete(index)
+  async Delete(id) {
+    if (!id) {
+      throw new Error("Favor colocar um id válido!")
+    }
+
+    const user = await User.findByPk(id)
+    if (!user) {
+      throw new Error(`Usuário ${id} não encontrado`)
+    }
+
+    return user.destroy()
   }
 }
 export default new ServiceUser()
